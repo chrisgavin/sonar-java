@@ -24,6 +24,7 @@ import org.apache.commons.lang.BooleanUtils;
 import org.sonar.check.Rule;
 import org.sonar.java.RspecKey;
 import org.sonar.java.model.declaration.MethodTreeImpl;
+import org.sonar.java.resolve.MethodJavaType;
 import org.sonar.plugins.java.api.JavaFileScanner;
 import org.sonar.plugins.java.api.JavaFileScannerContext;
 import org.sonar.plugins.java.api.semantic.Symbol;
@@ -93,13 +94,12 @@ public class RawExceptionCheck extends BaseTreeVisitor implements JavaFileScanne
     super.visitMethodInvocation(tree);
   }
 
-  private static boolean isRawException(Type type) {
-    for (String rawException : RAW_EXCEPTIONS) {
-      if (type.is(rawException)) {
-        return true;
-      }
+  private static boolean isRawException(Type symbolType) {
+    Type type = symbolType;
+    if (type instanceof MethodJavaType) {
+      type = ((MethodJavaType) type).resultType();
     }
-    return false;
+    return RAW_EXCEPTIONS.stream().anyMatch(type::is);
   }
 
   private static boolean isNotOverriden(MethodTree tree) {

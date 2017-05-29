@@ -250,3 +250,23 @@ class EnclosingInstance extends SuperClass {
     };
   }
 }
+
+class A {
+
+  private void foo() { // Noncompliant
+    A a = new A();
+    a.bar(new A.Handler() {
+      @Override
+      public boolean doSomething(String s) {
+        return false;
+      }
+    });
+  }
+
+  void bar(A.Handler ah) {
+  }
+
+  public static interface Handler {
+    public boolean doSomething(String s);
+  }
+}

@@ -30,6 +30,10 @@ public class Example {
     throw new MyException(); // OK
   }
 
+  public void throws_assertion() { // Compliant
+    throw new AssertionError("this is an exception"); // OK
+  }
+
   class MyException extends RuntimeException { // Compliant
   }
 
