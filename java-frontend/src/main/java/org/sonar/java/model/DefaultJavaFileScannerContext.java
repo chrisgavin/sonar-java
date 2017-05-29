@@ -123,8 +123,16 @@ public class DefaultJavaFileScannerContext implements JavaFileScannerContext {
 
   @Override
   public void reportIssueWithFlow(JavaCheck javaCheck, Tree syntaxNode, String message, Iterable<List<Location>> flows, @Nullable Integer cost) {
-    // FIXME SONARJAVA-2111 all flows should be reported for SE checks
-    Iterable<List<Location>> reportedFlows = javaCheck instanceof SECheck ? Iterables.limit(flows, 1) : flows;
+    if(sonarComponents == null) {
+      return;
+    }
+    Iterable<List<Location>> reportedFlows;
+    // Report only 1 flow for SQ < 6.4, because UI doesn't support multiple flows properly
+    if (sonarComponents.isSQGreaterThan64()) {
+      reportedFlows = flows;
+    } else {
+      reportedFlows = javaCheck instanceof SECheck ? Iterables.limit(flows, 1) : flows;
+    }
     sonarComponents.reportIssue(createAnalyzerMessage(file, javaCheck, syntaxNode, null, message, reportedFlows, cost));
   }
 
